@@ -88,20 +88,32 @@ kalloc(void)
   // TODO: figure out calling process to get the pid
   struct run *r;
 
+  int numframes = trackedframes.numframes;
+
   if(kmem.use_lock)
     acquire(&kmem.lock);
   r = kmem.freelist;
-  if(r)
-    kmem.freelist = r->next;
+
+  // TODO: is it here where we should check if the process has free pages on
+  // either side (or the same process on one side)?
+  if(r && (numframes == 0 ||
+    trackedframes.pids[numframes] == trackedframes.pids[numframes - 1]) ||
+    trackedframes.pids[numframes - 1] == -2) {
+
+    kmem.freelist = r->next; // This is where it allocates free frame I think?
+
+    // Get page number by masking offset - hopefully this works
+    uint pagenumber = ((PHYSTOP - V2P((char*)r)) >> 12);
+
+    // Add to trackedframes struct
+    if (kmem.use_lock) {
+      numframes++;
+      trackedframes.frames[numframes] = pagenumber;
+    }
+  }
+
   if(kmem.use_lock)
     release(&kmem.lock);
-  
-  // Get page number by masking offset - hopefully this works
-  uint pagenumber = ((PHYSTOP - V2P((char*)r)) >> 12);
-  if (kmem.use_lock == 1) {
-    trackedframes.frames[trackedframes.numframes] = pagenumber;
-    trackedframes.numframes++;
-  }
 
   return (char*)r;
 }

@@ -6,6 +6,7 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#include "list.h"
 
 struct {
   struct spinlock lock;
@@ -192,10 +193,11 @@ fork(void)
 
   // Copy process state from proc.
   if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
+    // TODO: store this pid
+    trackedframes.pids[trackedframes.numframes] = np->pid;
     kfree(np->kstack);
     np->kstack = 0;
     np->state = UNUSED;
-    // TODO: store this pid
     return -1;
   }
   np->sz = curproc->sz;
