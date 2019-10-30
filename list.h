@@ -3,7 +3,7 @@
 struct trackedframes {
   int pids[MAX_FRAMES];
   int frames[MAX_FRAMES];
-  int pages;
+  int numframes;
 };
 
 extern struct trackedframes trackedframes;
