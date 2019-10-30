@@ -74,6 +74,7 @@ kfree(char *v)
     acquire(&kmem.lock);
   r = (struct run*)v;
   r->next = kmem.freelist;
+  kmem.freelist = r;
   if(kmem.use_lock)
     release(&kmem.lock);
 }
