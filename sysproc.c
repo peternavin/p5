@@ -98,8 +98,12 @@ sys_uptime(void)
 int
 sys_dump_physmem(int *frames, int *pids, int numframes)
 {
-  if(argint(0, frames) < 0 || argint(0, pids) < 0 || argint(0, &numframes) < 0)
+  if(argint(0, &numframes) < 0)
     return -1;
+
+  if(argptr(0, (void*)&frames, sizeof(frames)) < 0 ||
+     argptr(0, (void*)&pids, sizeof(pids)) < 0)
+     return -1;
 
   //TODO
   return 0;
