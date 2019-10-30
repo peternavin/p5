@@ -90,9 +90,17 @@ sys_uptime(void)
   return xticks;
 }
 
+// This system call is used to find which process owns
+// each frame of physical memory.
+// frames is an array of integers corresponding to frame numbers
+// pids is an array of integers corresponding to frame numbers
+// numframes is the number of elements in the frames and pids arrays
 int
 sys_dump_physmem(int *frames, int *pids, int numframes)
 {
-    //TODO
-    return 0;
+  if(argint(0, frames) < 0 || argint(0, pids) < 0 || argint(0, &numframes) < 0)
+    return -1;
+
+  //TODO
+  return 0;
 }
