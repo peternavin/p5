@@ -8,6 +8,9 @@
 #include "memlayout.h"
 #include "mmu.h"
 #include "spinlock.h"
+//#include "list.h"
+
+//struct trackedframes trackedframes = {{0},{0}, 0};
 
 void freerange(void *vstart, void *vend);
 extern char end[]; // first address after kernel loaded from ELF file
@@ -93,8 +96,11 @@ kalloc(void)
     release(&kmem.lock);
   
   // Get page number by masking offset - hopefully this works
-  uint pagenumber = (PHYSTOP - V2P((char*)r) >> 12);
-  // REMEMBER: only gather statistics when knem.use_lock = 1
+  // uint pagenumber = ((PHYSTOP - V2P((char*)r)) >> 12);
+  // if (kmem.use_lock == 1) {
+  //   trackedframes.frames[trackedframes.pages] = pagenumber;
+  //   trackedframes.pages++;
+  // }
 
   return (char*)r;
 }
