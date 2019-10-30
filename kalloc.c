@@ -103,6 +103,10 @@ kalloc(void)
     kmem.freelist = r->next;
   if(kmem.use_lock)
     release(&kmem.lock);
+  
+  // Get page number by masking offset - hopefully this works
+  uint pagenumber = (PHYSTOP - V2P((char*)r) >> 12);
+
   return (char*)r;
 }
 
