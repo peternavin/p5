@@ -23,9 +23,6 @@ struct {
   struct run *freelist;
 } kmem;
 
-//Tracks if it has been everyother frame
-int everyOther = 0;
-
 //Array of 
 // Initialization happens in two phases.
 // 1. main() calls kinit1() while still using entrypgdir to place just
@@ -52,8 +49,7 @@ freerange(void *vstart, void *vend)
 {
   char *p;
   p = (char*)PGROUNDUP((uint)vstart);
-  //for(; p + PGSIZE <= (char*)vend; p += 2*PGSIZE)  // Fee only every other page
-  for(; p + PGSIZE <= (char*)vend; p += PGSIZE)
+  for(; p + PGSIZE <= (char*)vend; p += 2*PGSIZE)  // Fee only every other page
     kfree(p);
 }
 // Free the page of physical memory pointed at by v,
@@ -74,15 +70,7 @@ kfree(char *v)
   if(kmem.use_lock)
     acquire(&kmem.lock);
   r = (struct run*)v;
-  //r->next = kmem.freelist;
-  //SHOULD add every other frame to the freelist
-  if(everyOther == 0){
-    r->next = kmem.freelist;
-    kmem.freelist = r;
-    everyOther = 1;
-  } else{
-      everyOther = 0;
-  }
+  r->next = kmem.freelist;
   if(kmem.use_lock)
     release(&kmem.lock);
 }
