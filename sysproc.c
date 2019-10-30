@@ -6,6 +6,7 @@
 #include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
+#include "list.h"
 
 int
 sys_fork(void)
@@ -106,5 +107,13 @@ sys_dump_physmem(int *frames, int *pids, int numframes)
      return -1;
 
   //TODO
+  int i = 0;
+
+  while(trackedframes.frames[i] != 0) {
+    cprintf("frames[%d] = %d; pids[%d] = %d\n",
+            i, trackedframes.frames[i], i, trackedframes.pids[i]);
+    i++;
+  }
+
   return 0;
 }
