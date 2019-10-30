@@ -92,6 +92,7 @@ kfree(char *v)
 char*
 kalloc(void)
 {
+  // TODO: figure out calling process to get the pid
   struct run *r;
 
   if(kmem.use_lock)

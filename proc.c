@@ -72,6 +72,8 @@ myproc(void) {
 static struct proc*
 allocproc(void)
 {
+  // TODO: associate the kernel stack of a process with that process
+
   struct proc *p;
   char *sp;
 
@@ -90,6 +92,7 @@ found:
 
   release(&ptable.lock);
 
+  // TODO: let kalloc() know of the corresponding PID
   // Allocate kernel stack.
   if((p->kstack = kalloc()) == 0){
     p->state = UNUSED;
@@ -192,6 +195,7 @@ fork(void)
     kfree(np->kstack);
     np->kstack = 0;
     np->state = UNUSED;
+    // TODO: store this pid
     return -1;
   }
   np->sz = curproc->sz;
