@@ -106,6 +106,7 @@ kalloc(void)
   
   // Get page number by masking offset - hopefully this works
   uint pagenumber = (PHYSTOP - V2P((char*)r) >> 12);
+  // REMEMBER: only gather statistics when knem.use_lock = 1
 
   return (char*)r;
 }
