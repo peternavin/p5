@@ -111,8 +111,8 @@ kalloc(void)
       trackedframes.frames[numframes] = pagenumber;
       trackedframes.numframes = numframes;
     }
+    trackedframes.pids[numframes] = -2; //idk why this has to be outside of the lock
   }
-
   if(kmem.use_lock)
     release(&kmem.lock);
 
