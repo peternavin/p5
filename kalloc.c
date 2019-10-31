@@ -109,6 +109,7 @@ kalloc(void)
     if (kmem.use_lock) {
       numframes++;
       trackedframes.frames[numframes] = pagenumber;
+      trackedframes.numframes = numframes;
     }
   }
 
