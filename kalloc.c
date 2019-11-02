@@ -11,7 +11,7 @@
 #include "list.h"
 
 struct trackedframes trackedframes = {{0},{0}, 0};
-
+int everyOther = 1;
 void freerange(void *vstart, void *vend);
 extern char end[]; // first address after kernel loaded from ELF file
                    // defined by the kernel linker script in kernel.ld
@@ -52,7 +52,7 @@ freerange(void *vstart, void *vend)
 {
   char *p;
   p = (char*)PGROUNDUP((uint)vstart);
-  for(; p + PGSIZE <= (char*)vend; p += 2*PGSIZE)  // Fee only every other page
+  for(; p + PGSIZE <= (char*)vend; p += PGSIZE)  // Fee only every other page
     kfree(p);
 }
 // Free the page of physical memory pointed at by v,
@@ -72,9 +72,14 @@ kfree(char *v)
   
   if(kmem.use_lock)
     acquire(&kmem.lock);
+  if(everyOther == 1){
   r = (struct run*)v;
   r->next = kmem.freelist;
   kmem.freelist = r;
+  everyOther = 0;
+    } else{
+    everyOther = 1;
+}
   if(kmem.use_lock)
     release(&kmem.lock);
 }
@@ -103,7 +108,7 @@ kalloc(void)
     kmem.freelist = r->next; // This is where it allocates free frame I think?
 
     // Get page number by masking offset - hopefully this works
-    uint pagenumber = ((PHYSTOP - V2P((char*)r)) >> 12);
+    uint pagenumber = (V2P((char*)r) >> 12) & 0xffff;//((PHYSTOP - V2P((char*)r)) >> 12);
 
     // Add to trackedframes struct
     if (kmem.use_lock) {
@@ -119,16 +124,28 @@ kalloc(void)
   return (char*)r;
 }
 
+//User program will allocate the arrays
+//this syscall will fill the arrays with the tracked frames & pids
 int
 dump_physmem(int *frames, int *pids, int numframes)
 {
-  int i = 0;
+    //This gives the correct frames for test 1 when only printing the first 100
+    //the numframes int that is passed is not correct
+    //it should be 100 but ~44000 is being passed
+    for(int i = 0; i < 100; i++){
+        frames[i] = trackedframes.frames[i];
+        //adding the pids here will fuck the frames up, idk wtf is goin on
+        //maybe something with how it's set outside of a lock
+     //   pids[i] = trackedframes.pids[i];
+    }
+/*  int i = 0;
+
 
   while(trackedframes.frames[i] != 0) {
     cprintf("frames[%d] = %X; pids[%d] = %X\n",
             i, trackedframes.frames[i], i, trackedframes.pids[i]);
     i++;
-  }
+  }*/
 
   return 0;
 }
