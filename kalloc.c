@@ -72,14 +72,16 @@ kfree(char *v)
   
   if(kmem.use_lock)
     acquire(&kmem.lock);
+  
   if(everyOther == 1){
-  r = (struct run*)v;
-  r->next = kmem.freelist;
-  kmem.freelist = r;
-  everyOther = 0;
-    } else{
+    r = (struct run*)v;
+    r->next = kmem.freelist;
+    kmem.freelist = r;
+    everyOther = 0;
+  } else{
     everyOther = 1;
-}
+  }
+  
   if(kmem.use_lock)
     release(&kmem.lock);
 }
@@ -88,11 +90,9 @@ kfree(char *v)
 // Returns a pointer that the kernel can use.
 // Returns 0 if the memory cannot be allocated.
 char*
-kalloc(void)
+kalloc(int pid)
 {
-  // TODO: figure out calling process to get the pid
   struct run *r;
-
   int numframes = trackedframes.numframes;
 
   if(kmem.use_lock)
@@ -101,9 +101,14 @@ kalloc(void)
 
   // TODO: is it here where we should check if the process has free pages on
   // either side (or the same process on one side)?
-  if(r && (numframes == 0 ||
+  
+  //The conditions of this statement mess with the remapping
+  //Seems that it causes this to never get the next frame in the freelist
+  //which causes it to try and allocate the same frame twice. ie. panic remap
+
+  if(r/* && (numframes == 0 ||
     trackedframes.pids[numframes] == trackedframes.pids[numframes - 1] ||
-    trackedframes.pids[numframes - 1] == -2)) {
+    trackedframes.pids[numframes - 1] == -2)*/) {
 
     kmem.freelist = r->next; // This is where it allocates free frame I think?
 
@@ -112,13 +117,17 @@ kalloc(void)
 
     // Add to trackedframes struct
     if (kmem.use_lock) {
-     // numframes++;
       trackedframes.frames[numframes] = pagenumber;
+    
+      if(pid == -1){
+        trackedframes.pids[numframes] = -2; 
+      } else {
+        trackedframes.pids[numframes] = pid;
+      }
+      
       numframes++;
-       trackedframes.numframes = numframes;
-     // numframes++;
+      trackedframes.numframes = numframes;
     }
-    trackedframes.pids[numframes] = -2; //idk why this has to be outside of the lock
   }
   if(kmem.use_lock)
     release(&kmem.lock);
@@ -131,27 +140,13 @@ kalloc(void)
 int
 dump_physmem(int *frames, int *pids, int numframes)
 {
-    //This gives the correct frames for test 1 when only printing the first 100
-    //the numframes int that is passed is not correct
-    //it should be 100 but ~44000 is being passed
     if(frames == 0 || pids == 0){
         return -1;
     }
     for(int i = 0; i < numframes; i++){
         frames[i] = trackedframes.frames[i];
-        //adding the pids here will fuck the frames up, idk wtf is goin on
-        //maybe something with how it's set outside of a lock
         pids[i] = trackedframes.pids[i];
     }
-/*  int i = 0;
-
-
-  while(trackedframes.frames[i] != 0) {
-   // cprintf("frames[%d] = %X; pids[%d] = %X\n",
-   //         i, trackedframes.frames[i], i, trackedframes.pids[i]);
-    frames[i] = trackedframes.frames[i];
-    i++;
-  }*/
 
   return 0;
 }

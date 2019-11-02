@@ -95,7 +95,7 @@ found:
 
   // TODO: let kalloc() know of the corresponding PID
   // Allocate kernel stack.
-  if((p->kstack = kalloc()) == 0){
+  if((p->kstack = kalloc(p->pid)) == 0){
     p->state = UNUSED;
     return 0;
   }

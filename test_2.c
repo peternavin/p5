@@ -5,22 +5,22 @@
 int
 main(int argc, char *argv[])
 {
-    int numframes = -1;
+    int numframes = 130;
     int* frames = malloc(numframes * sizeof(int));
     int* pids = malloc(numframes * sizeof(int));
-    
     int flag = dump_physmem(frames, pids, numframes);
     
-    if(flag == 0)
-    {
+    int pidd = fork();
+    if(pidd==0){
+	if(flag == 0)
+    	{
         for (int i = 0; i < numframes; i++)
-          if(*(pids+i) ==-2)
+          if(*(pids+i) >-3)
             printf(0,"Frames: %x PIDs: %d\n", *(frames+i), *(pids+i));
-    }
-    else// if(flag == -1)
-    {
-        printf(0,"error\n");
-    }
+    	}
+	}
+	    
+	    if(pidd>0) wait();
     wait();
     exit();
 }
