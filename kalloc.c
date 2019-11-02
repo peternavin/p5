@@ -112,9 +112,11 @@ kalloc(void)
 
     // Add to trackedframes struct
     if (kmem.use_lock) {
-      numframes++;
+     // numframes++;
       trackedframes.frames[numframes] = pagenumber;
-      trackedframes.numframes = numframes;
+      numframes++;
+       trackedframes.numframes = numframes;
+     // numframes++;
     }
     trackedframes.pids[numframes] = -2; //idk why this has to be outside of the lock
   }
@@ -132,18 +134,19 @@ dump_physmem(int *frames, int *pids, int numframes)
     //This gives the correct frames for test 1 when only printing the first 100
     //the numframes int that is passed is not correct
     //it should be 100 but ~44000 is being passed
-    for(int i = 0; i < 100; i++){
+    for(int i = 0; i < numframes; i++){
         frames[i] = trackedframes.frames[i];
         //adding the pids here will fuck the frames up, idk wtf is goin on
         //maybe something with how it's set outside of a lock
-     //   pids[i] = trackedframes.pids[i];
+        pids[i] = trackedframes.pids[i];
     }
 /*  int i = 0;
 
 
   while(trackedframes.frames[i] != 0) {
-    cprintf("frames[%d] = %X; pids[%d] = %X\n",
-            i, trackedframes.frames[i], i, trackedframes.pids[i]);
+   // cprintf("frames[%d] = %X; pids[%d] = %X\n",
+   //         i, trackedframes.frames[i], i, trackedframes.pids[i]);
+    frames[i] = trackedframes.frames[i];
     i++;
   }*/
 
