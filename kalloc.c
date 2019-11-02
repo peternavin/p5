@@ -134,6 +134,9 @@ dump_physmem(int *frames, int *pids, int numframes)
     //This gives the correct frames for test 1 when only printing the first 100
     //the numframes int that is passed is not correct
     //it should be 100 but ~44000 is being passed
+    if(frames == 0 || pids == 0){
+        return -1;
+    }
     for(int i = 0; i < numframes; i++){
         frames[i] = trackedframes.frames[i];
         //adding the pids here will fuck the frames up, idk wtf is goin on
