@@ -188,6 +188,7 @@ fork(void)
 
   // Allocate process.
   if((np = allocproc()) == 0){
+    trackedframes.pids[trackedframes.numframes] = np->pid;
     return -1;
   }
 

@@ -119,3 +119,16 @@ kalloc(void)
   return (char*)r;
 }
 
+int
+dump_physmem(int *frames, int *pids, int numframes)
+{
+  int i = 0;
+
+  while(trackedframes.frames[i] != 0) {
+    cprintf("frames[%d] = %X; pids[%d] = %X\n",
+            i, trackedframes.frames[i], i, trackedframes.pids[i]);
+    i++;
+  }
+
+  return 0;
+}

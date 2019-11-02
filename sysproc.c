@@ -97,8 +97,12 @@ sys_uptime(void)
 // pids is an array of integers corresponding to frame numbers
 // numframes is the number of elements in the frames and pids arrays
 int
-sys_dump_physmem(int *frames, int *pids, int numframes)
+sys_dump_physmem(void)
 {
+  int *frames;
+  int *pids;
+  int numframes;
+
   if(argint(0, &numframes) < 0)
     return -1;
 
@@ -106,14 +110,16 @@ sys_dump_physmem(int *frames, int *pids, int numframes)
      argptr(0, (void*)&pids, sizeof(pids)) < 0)
      return -1;
 
-  //TODO
-  int i = 0;
+  return dump_physmem(frames, pids, numframes);
 
-  while(trackedframes.frames[i] != 0) {
-    cprintf("frames[%d] = %d; pids[%d] = %d\n",
-            i, trackedframes.frames[i], i, trackedframes.pids[i]);
-    i++;
-  }
+  // //TODO
+  // int i = 0;
 
-  return 0;
+  // while(trackedframes.frames[i] != 0) {
+  //   cprintf("frames[%d] = %X; pids[%d] = %X\n",
+  //           i, trackedframes.frames[i], i, trackedframes.pids[i]);
+  //   i++;
+  // }
+
+  // return 0;
 }
